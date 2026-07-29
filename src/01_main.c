@@ -1,0 +1,26 @@
+#include "00_includes/00_base.h"
+#include "00_includes/01_internals.h"
+#include "00_includes/02_core.h"
+#include "00_includes/01_first_layer/01_backgorund.h"
+
+//for platorm specific things look into platform.h
+int main(void)
+{
+    i16 WIDTH = 800;
+    i16 HEIGHT = 800;
+    GLFWwindow* window = create_window(WIDTH, HEIGHT, "obCel");
+    i8 r = 16; i8 g = 71; i8 b = 83; f32 alpha = 1.0f;
+
+    while(!glfwWindowShouldClose(window)) 
+    {
+        if(glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
+        set_background(r,g,b,alpha);
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+
+    glfwTerminate();
+
+    printf(BASH_GREEN("SUCCESS")": window closed successfully\n");
+    exit(EXIT_SUCCESS);
+}
