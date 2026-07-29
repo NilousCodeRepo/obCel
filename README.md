@@ -4,7 +4,8 @@
 - [x] Change types to "base types"
 - [x] Change types to GL types
 - [x] move shaders in their on files
-- [ ] create procedures to read shaders
+- [x] create procedures to read shaders
+- [ ] in shader_compile file, make a func for every shader type
 - [ ] Make a button
 - [ ] Make the button react on click(color becomes darker)
 - [ ] REJOICE YOU ARE HALFWAY THERE
