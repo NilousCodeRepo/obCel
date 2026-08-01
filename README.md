@@ -7,6 +7,7 @@
 - [x] create procedures to read shaders
 - [x] in shader_compile file, make a func for every shader type
 - [ ] check TODOs
+- [ ] write actuall shader code to make them work
 - [ ] remove -Wdiscarded-qualifiers warnings
 - [ ] Make a button
 - [ ] Make the button react on click(color becomes darker)

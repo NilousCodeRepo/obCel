@@ -4,7 +4,7 @@
 
 static inline void hints(void);
 GLFWwindow* create_window(i16 width, i16 height, char* window_name);
-static inline void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+static inline void framebuffer_size_callback(GLFWwindow*, int width, int height);
 
 GLFWwindow* create_window(i16 width, i16 height, char* window_name)
 {
@@ -28,8 +28,8 @@ GLFWwindow* create_window(i16 width, i16 height, char* window_name)
 
     return window;
 }
-
-static inline void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+//unused attrib does not have a name
+static inline void framebuffer_size_callback(GLFWwindow*, int width, int height)
 {
     glViewport(0, 0, width, height);
 }

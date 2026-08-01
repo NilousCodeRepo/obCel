@@ -13,13 +13,14 @@ int main(void)
     i8 r = 16; i8 g = 71; i8 b = 83; f32 alpha = 1.0f;
     
     u32 program = shader_compile("src/01_first_layer/00_shaders/02_rectangle/01_rec_ver.vs","src/01_first_layer/00_shaders/02_rectangle/02_rec_frag.fs");
-    
+
     while(!glfwWindowShouldClose(window)) 
     {
         if(glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
         set_background(r,g,b,alpha);
 
         glUseProgram(program);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
