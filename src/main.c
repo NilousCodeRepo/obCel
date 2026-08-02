@@ -1,8 +1,8 @@
-#include "00_includes/00_base.h"
-#include "00_includes/01_internals.h"
-#include "00_includes/02_core.h"
-#include "00_includes/01_first_layer/01_backgorund.h"
-#include "00_includes/01_first_layer/02_shader_compiler.h"
+#include "includes/base.h"
+#include "includes/internals.h"
+#include "includes/core.h"
+#include "includes/first_layer/background.h"
+#include "includes/first_layer/shader_compiler.h"
 
 //for platorm specific things look into platform.h
 int main(void)
@@ -12,7 +12,7 @@ int main(void)
     GLFWwindow* window = create_window(WIDTH, HEIGHT, "obCel");
     i8 r = 16; i8 g = 71; i8 b = 83; f32 alpha = 1.0f;
     
-    u32 program = shader_compile("src/01_first_layer/00_shaders/02_rectangle/01_rec_ver.vs","src/01_first_layer/00_shaders/02_rectangle/02_rec_frag.fs");
+    u32 program = shader_compile("src/first_layer/shaders/triangle/rec_ver.vs","src/first_layer/shaders/triangle/rec_frag.fs");
 
     while(!glfwWindowShouldClose(window)) 
     {

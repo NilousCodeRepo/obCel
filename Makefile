@@ -13,7 +13,7 @@ CFLAGS += $(addprefix -I,$(shell find $(RES_DIR) -path '$(GLFW_DIR)' -prune))
 CFLAGS += -I$(GLFW_DIR)/include
 
 LDFLAGS = -L$(GLFW_DIR)/build/src/
-LDLIBS = -l:libglfw3.a -lm
+LDLIBS = -l:libglfw3.a -lm -lGL
 
 #every file.c in SRC_DIR and subdirs
 SOURCES = $(shell find $(SRC_DIR) -name '*.c')

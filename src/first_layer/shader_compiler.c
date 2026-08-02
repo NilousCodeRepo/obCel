@@ -1,5 +1,5 @@
-#include "../00_includes/00_base.h"
-#include "../00_includes/01_internals.h"
+#include "../includes/base.h"
+#include "../includes/internals.h"
 
 u32 shader_compile(char* vertex_path, char* fragment_path);
 u32 vertex_compile(const char* vertex_file);
@@ -31,7 +31,7 @@ u32 shader_compile(char* vertex_path, char* fragment_path)
     }
     printf(BASH_GREEN("SUCCESS")": LIKING phase completed:%s\n", info_log);
 
-    f32 vertices[] = {
+    const f32 VERTX_DATA[] = {
         // positions        
         0.5f, -0.5f, 0.0f,  // bottom right
         -0.5f, -0.5f, 0.0f, // bottom left
@@ -45,7 +45,7 @@ u32 shader_compile(char* vertex_path, char* fragment_path)
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VERTX_DATA), VERTX_DATA, GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)0);
@@ -114,6 +114,7 @@ char* file_reader(char* file)
     if(buffer == NULL)printf(BASH_RED("ERROR")": ALLOCATION of buffer for shader compilation failed\n");
     
     fread(buffer, size, sizeof(char), f);
+    buffer[size] = '\0';
     
     fclose(f);
     return(buffer);

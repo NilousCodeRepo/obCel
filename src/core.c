@@ -1,6 +1,6 @@
-#include "00_includes/00_base.h"
-#include "00_includes/01_internals.h"
-#include "00_includes/02_core.h"
+#include "includes/base.h"
+#include "includes/internals.h"
+#include "includes/core.h"
 
 static inline void hints(void);
 GLFWwindow* create_window(i16 width, i16 height, char* window_name);
