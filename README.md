@@ -11,7 +11,7 @@
 - [x] remove -Wdiscarded-qualifiers warnings
 - [x] remove number prefix from files and regenerate tags
 - [x] Separate the creation of VBO and VAO from shader creation
-- [ ] Using:
+- [x] Using:
         https://github.com/JoeyDeVries/LearnOpenGL/blob/master/src/1.getting_started/2.5.hello_triangle_exercise3/hello_triangle_exercise3.cpp
         make the program better, it should do what does here, but more general and with the style of the program
 - [ ] Create procedure to read mesh.h file and automatically instance or add to VBO and create VAO and EBO
@@ -29,3 +29,42 @@
 ###### INFO:
 - transparency exists as frambuffer && window parameter, but using only one is undef bev
 - An OGL context seems to be the running process more or less
+
+###### IDEAS:
+- For shader file reading:
+
+    malloc(something for files when found)
+    search_shaders(void)
+    {
+        current_dir
+        if(no vs/fs shaders, go deeper)
+        if(vs/fs shaders pass path to compile_shader(path))
+        remember to check if total file size if bigger than malloc-ed space
+        and if yes alloc more
+
+        search_shaders();
+    }
+    free()
+    compile_shader(path)
+    {
+        the usuale compile -> log -> out 
+    }
+
+    why malloc? well easy, the compiler functions need the souce code strings
+    and to give it to them i have to read them inside a buffer
+    and that buffer will be x bytes big
+
+- For mesh value reading:
+
+    does every vertex file need it's vertices? yes.
+
+    should i write code for every vert coord? no. I will program some basic shapes and mod them
+
+    point = 1 2 0
+    point 2 = point one but with 1+1 2+0 0+0
+
+    Do i have to write things like:
+    drawTriangle(pos)
+    ?
+    How would this interface itself with a more complex senario in a data movement sense?
+    do i need things like squircles and rounded corners rectangle? yes

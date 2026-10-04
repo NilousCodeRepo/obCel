@@ -11,8 +11,8 @@ int main(void)
     i16 HEIGHT = 800;
     GLFWwindow* window = create_window(WIDTH, HEIGHT, "obCel");
     i8 r = 16; i8 g = 71; i8 b = 83; f32 alpha = 1.0f;
-    
-    u32 program = shader_compile("src/first_layer/shaders/triangle/rec_ver.vs","src/first_layer/shaders/triangle/rec_frag.fs");
+
+    u32 program = shader_compile("/home/nilou/Code/PROJECTS/obcel/src/");
 
     while(!glfwWindowShouldClose(window)) 
     {
