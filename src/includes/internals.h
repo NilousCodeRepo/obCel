@@ -11,4 +11,5 @@
 #define BASH_BLUE(word) "\x1B[34m" word "\x1B[0m"
 #define BASH_MAGENTA(word) "\x1B[35m" word "\x1B[0m"
 #define BASH_YELLOW(word) "\x1B[93m" word "\x1B[0m"
+
 #define LOG_SIZE 512

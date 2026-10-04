@@ -11,7 +11,9 @@ void vertex_data(void);
 const char *get_filename_ext(const char *filename);
 char* file_reader(char* file);
 
-#define BUFF_SIZE 249
+#define BUFF_SIZE 1024*4
+
+static u16 TEXT_SIZE = 0;
 
 u32 shader_compile(const char* path)
 {
@@ -48,7 +50,6 @@ u32 shader_compile(const char* path)
         }
     }
     
-    }
     closedir(dir);
 /*
     ora i file li apre e li stampa, ora devo:
@@ -170,14 +171,14 @@ char* file_reader(char* file)
 //check how many bytes is the file, by moving a "cursor"(file position indicator) then
 //reset the "cursor" position in the file
     fseek(f, 0, SEEK_END); 
-    u16 size = ftell(f); 
+    TEXT_SIZE = ftell(f); 
     fseek(f, 0, SEEK_SET);
 
-    char* buffer = (char*) malloc(size + 1);
+    char* buffer = (char*) malloc(TEXT_SIZE + 1);
     if(buffer == NULL)printf(BASH_RED("ERROR")": ALLOCATION of buffer for shader compilation failed\n");
     
-    fread(buffer, size, sizeof(char), f);
-    buffer[size] = '\0';
+    fread(buffer, TEXT_SIZE, sizeof(char), f);
+    buffer[TEXT_SIZE+1] = '\0';
     fclose(f);
     return(buffer);
 }
