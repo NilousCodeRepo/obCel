@@ -1,5 +1,3 @@
-//#ifndef BASE_H
-//#define BASE_H
 #pragma once
 #include <glad.h>
 
@@ -22,4 +20,3 @@ typedef GLintptr  size_p;
 typedef GLenum    u32;
 typedef GLsizei   i32;
 typedef GLboolean b1;
-//#endif

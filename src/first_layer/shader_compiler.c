@@ -2,25 +2,36 @@
 #include "../includes/base.h"
 #include "../includes/internals.h"
 
-u32 shader_compile(const char* path);
-u32 vertex_compile(const char* vertex_file);
-u32 fragment_compile(const char* fragment_file);
+typedef enum Type
+{
+    VERTEX,
+    FRAGMENT,
+}Type;
+
+u32 choose_f_type(const char*);
+u32 shader_compile(const char*);
+u32 vertex_compile(const char*);
+u32 fragment_compile(const char*);
 
 void vertex_data(void);
 
-const char *get_filename_ext(const char *filename);
-char* file_reader(char* file);
+const char *get_filename_ext(const char*);
+char* file_reader(char*);
 
 #define BUFF_SIZE 1024*4
 
 static u16 TEXT_SIZE = 0;
 
+u32 choose_f_type(const char* buffer)
+{
+
+}
+
 u32 shader_compile(const char* path)
 {
-    u32 prog_ID = 0;
     DIR* dir;
     struct dirent* entry;
-    char* buff = NULL;
+    char** buff = (char**)malloc(BUFF_SIZE);
     
     if((dir = opendir(path)) == NULL)
     {
@@ -28,11 +39,12 @@ u32 shader_compile(const char* path)
         return(1);
     }
 
+    char p[BUFF_SIZE];
+    char ext[8];
+    u8 count = 0;
     while((entry = readdir(dir)) != NULL)
     {
-        char p[BUFF_SIZE];
-
-        //serve saltare l'attuale cartella, sennò ricorsione infinita ed errore
+        //serve a saltare l'attuale cartella, sennò ricorsione infinita ed errore
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
             continue;
 
@@ -41,57 +53,92 @@ u32 shader_compile(const char* path)
 
         if(entry->d_type == DT_DIR) shader_compile(p);
 
-        char ext[8];
         snprintf(ext, sizeof(ext), "%s", get_filename_ext(entry->d_name));
         
-        if(strcmp(ext, "vs") == 0 || strcmp(ext, "fs") == 0)
+        if(strcmp(ext, "vs") == 0)
         {
-            buff = file_reader(p);//ricorda di buff=NULL appena puoi.
+            buff[count] = file_reader(p);
+            count++;//needed if files > 2
+        }
+        if(strcmp(ext, "fs") == 0)
+        {
+            buff[count+1] = file_reader(p);
+            count++;
         }
     }
-    
+
     closedir(dir);
-/*
-    ora i file li apre e li stampa, ora devo:
-        1. stamparli in un buffer
-        2. farmi mandare una tupla di valori, buffer address and buffer size
-           direttamente da file_reader();
-        3. ogni size lo divido in ogni buffer di buffer, con in mezzo un "\"
-        4. copiarli ogni volta in un altro buffer fino a "\"
-        5. mandarli allo step di compilazione giusto
+/*TODO(nilou):
+        1. mandarli allo step di compilazione giusto:
+            immagina:
+            u32 vertex_program = choose_f_type(VERTEX, buff[x]);
+            choose_f_type(union Type t)
+            {
+                switch(t)
+                {
+                    case VERTEX: vertex_compile(x)
+                    break;
+                    .
+                    .
+                    .
+                    default:
+                }
+            }
+        come prendere il buff giusto?
+        faccio un loop su buff? e.g.:
+        while(buff != NULL)
+        {
+            /uparrow
+            buff+1;
+        }
+        non credo sia giustissimo
+
+        2. Come faccio a creare più vertex programs?
+            mi serve un array? no
+            ci pensa OpenGL? si, devo solo fare:
+                AttachShader(vertex/fragment program)
+            perchè è sequenziale sia compilare che linkare quindi posso farlo
 */
 
-#if 0
-    char* v_file = file_reader(vertex_path);
-    char* f_file = file_reader(fragment_path);
+#if 1
+    u32 vertex_program = 0;
+    u32 fragment_program = 0;
+    u32 prog_ID = 0;
 
-    u32 vertex_program = vertex_compile(v_file);
-    u32 fragment_program = fragment_compile(f_file);
-
-    prog_ID = glCreateProgram();
-
-    glAttachShader(prog_ID, vertex_program);
-    glAttachShader(prog_ID, fragment_program);
-    
-    glLinkProgram(prog_ID);
-
-    i32 success; char info_log[LOG_SIZE] = {0};
-    glGetProgramiv(prog_ID, GL_LINK_STATUS, &success);
-    if(success == GL_FALSE) 
+    while(buff != NULL)
     {
-        glGetProgramInfoLog(prog_ID, sizeof(info_log), NULL, info_log);
-        printf(BASH_RED("ERROR")": Could NOT LINK shader [INFO LOG]:%s\n", info_log);
+        program = choose_f_type(VERTEX, buff);
+        buff = buff + 1;
+        program = choose_f_type(FRAGMENT, buff);
+        buff = buff + 1;
+
+        prog_ID = glCreateProgram();
+
+        //GlAttachShader(prog_ID, vertex_program);
+        //GlAttachShader(prog_ID, fragment_program);
+        GlAttachShader(prog_ID, program);
+        
+        glLinkProgram(prog_ID);
+
+        i32 success; char info_log[LOG_SIZE] = {0};
+        glGetProgramiv(prog_ID, GL_LINK_STATUS, &success);
+        if(success == GL_FALSE) 
+        {
+            glGetProgramInfoLog(prog_ID, sizeof(info_log), NULL, info_log);
+            printf(BASH_RED("ERROR")": Could NOT LINK shader [INFO LOG]:%s\n", info_log);
+        }
+        printf(BASH_GREEN("SUCCESS")": LIKING phase completed:%s\n", info_log);
+
+        vertex_data();
+
+        //glDeleteShader(vertex_program);
+        //glDeleteShader(fragment_program);
+        glDeleteShader(program);
     }
-    printf(BASH_GREEN("SUCCESS")": LIKING phase completed:%s\n", info_log);
 
-    vertex_data();
-
-    free(v_file);
-    free(f_file);
-
-    glDeleteShader(vertex_program);
-    glDeleteShader(fragment_program);
 #endif
+    free(buff);
+    buff=NULL;
     return(prog_ID);
 }
 
@@ -180,5 +227,6 @@ char* file_reader(char* file)
     fread(buffer, TEXT_SIZE, sizeof(char), f);
     buffer[TEXT_SIZE+1] = '\0';
     fclose(f);
+    
     return(buffer);
 }
