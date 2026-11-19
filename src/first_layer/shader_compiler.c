@@ -2,13 +2,6 @@
 #include "../includes/base.h"
 #include "../includes/internals.h"
 
-typedef enum Type
-{
-    VERTEX,
-    FRAGMENT,
-}Type;
-
-u32 choose_f_type(const char*);
 u32 shader_compile(const char*);
 u32 vertex_compile(const char*);
 u32 fragment_compile(const char*);
@@ -21,11 +14,6 @@ char* file_reader(char*);
 #define BUFF_SIZE 1024*4
 
 static u16 TEXT_SIZE = 0;
-
-u32 choose_f_type(const char* buffer)
-{
-
-}
 
 u32 shader_compile(const char* path)
 {
@@ -100,10 +88,10 @@ u32 shader_compile(const char* path)
             perchè è sequenziale sia compilare che linkare quindi posso farlo
 */
 
-#if 1
+    u32 prog_ID = 0;
+#if 0
     u32 vertex_program = 0;
     u32 fragment_program = 0;
-    u32 prog_ID = 0;
 
     while(buff != NULL)
     {
