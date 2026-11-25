@@ -7,8 +7,8 @@
 //for platorm specific things look into platform.h
 int main(void)
 {
-    i16 WIDTH = 800;
-    i16 HEIGHT = 800;
+    u16 WIDTH = 800;
+    u16 HEIGHT = 800;
     GLFWwindow* window = create_window(WIDTH, HEIGHT, "obCel");
     i8 r = 16; i8 g = 71; i8 b = 83; f32 alpha = 1.0f;
 
@@ -23,7 +23,7 @@ int main(void)
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
         glfwSwapBuffers(window);
-        glfwPollEvents();
+        glfwPollEvents();//needed to quit
     }
 
     glfwTerminate();

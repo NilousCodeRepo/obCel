@@ -3,10 +3,10 @@
 #include "includes/core.h"
 
 static inline void hints(void);
-GLFWwindow* create_window(i16 width, i16 height, char* window_name);
-static inline void framebuffer_size_callback(GLFWwindow*, int width, int height);
+GLFWwindow* create_window(u16, u16 , char*);
+static inline void framebuffer_size_callback(GLFWwindow*, int, int);
 
-GLFWwindow* create_window(i16 width, i16 height, char* window_name)
+GLFWwindow* create_window(u16 width, u16 height, char* window_name)
 {
     hints();
     

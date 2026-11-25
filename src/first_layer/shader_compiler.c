@@ -2,14 +2,14 @@
 #include "../includes/base.h"
 #include "../includes/internals.h"
 
-u32 shader_compile(const char*);
 u32 vertex_compile(const char*);
 u32 fragment_compile(const char*);
-
-void vertex_data(void);
+u32 shader_compile(const char*);
 
 const char *get_filename_ext(const char*);
 char* file_reader(char*);
+
+void vertex_data(void);
 
 #define BUFF_SIZE 1024*4
 
@@ -30,6 +30,10 @@ u32 shader_compile(const char* path)
     char p[BUFF_SIZE];
     char ext[8];
     u8 count = 0;
+
+    //TODO(nilou): the loop kind of works, but in the man of dirent is a "maybe" the fact that it
+    //             can read the subsequen file(that after fs for example) try to use a simpler method 
+    //             this loop is making me mad...
     while((entry = readdir(dir)) != NULL)
     {
         //serve a saltare l'attuale cartella, sennò ricorsione infinita ed errore
@@ -38,21 +42,26 @@ u32 shader_compile(const char* path)
 
         //sto creando la stringa che equivale al path
         snprintf(p, sizeof(p), "%s/%s", path, entry->d_name);
-
+        printf("PATH: %s\n", path);
+        
+        //TODO(nilou): use debugger here
         if(entry->d_type == DT_DIR) shader_compile(p);
 
         snprintf(ext, sizeof(ext), "%s", get_filename_ext(entry->d_name));
-        
+        printf("EXT: %s\n", ext);
+
+        if(strcmp(ext, "fs") == 0)
+        {
+            buff[count] = file_reader(p);
+            printf("FRAGMENT SHADER: %s\nBUFF LOCATED AT: %p\nSTRING LOCATED AT: %p\n", buff[count], &buff[count], &buff[count][0]);
+        }
         if(strcmp(ext, "vs") == 0)
         {
             buff[count] = file_reader(p);
-            count++;//needed if files > 2
+            printf("VERTEX SHADER: %s\nBUFF LOCATED AT: %p\nSTRING LOCATED AT: %p\n", buff[count], &buff[count], &buff[count][0]);
         }
-        if(strcmp(ext, "fs") == 0)
-        {
-            buff[count+1] = file_reader(p);
-            count++;
-        }
+
+        count++;//needed if files > 2
     }
 
     closedir(dir);

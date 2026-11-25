@@ -1,19 +1,6 @@
 ###### TODO:
-- [x] Make a background
-- [x] Create base.h
-- [x] Change types to "base types"
-- [x] Change types to GL types
-- [x] move shaders in their on files
-- [x] create procedures to read shaders
-- [x] in shader_compile file, make a func for every shader type
-- [x] check TODOs
-- [x] write actuall shader code to make them work
-- [x] remove -Wdiscarded-qualifiers warnings
-- [x] remove number prefix from files and regenerate tags
-- [x] Separate the creation of VBO and VAO from shader creation
-- [x] Using:
-        https://github.com/JoeyDeVries/LearnOpenGL/blob/master/src/1.getting_started/2.5.hello_triangle_exercise3/hello_triangle_exercise3.cpp
-        make the program better, it should do what does here, but more general and with the style of the program
+- [ ] Remake makefile so that it's simpler and does not -Iglfw for everything, becauser -I looks up the dirs so it slows down compilation
+- [ ] Debug ts 
 - [ ] Create procedure to read mesh.h file and automatically instance or add to VBO and create VAO and EBO
 - [ ] same as above for shaders 
 - [ ] implement cleanup of resources
@@ -21,38 +8,16 @@
 - [ ] Make a button
 - [ ] Make the button react on click(color becomes darker)
 - [ ] REJOICE YOU ARE HALFWAY THERE
-- [ ] Remake makefile so that it's simpler and does not -Iglfw for everything, becauser -I looks up the dirs so it slows down compilation
 - [ ] Make the Makefile separate DEBUG and RELEASE version
 - [ ] create system to compile shader once and call them with a func like "compile_shader(path_file.txt)"
 ###### MAYBE:
 - [ ] make script to check gl version and auto generate glad, base and include/not-include deprecated things
+- [ ] check if clang makes your job better
 ###### INFO:
 - transparency exists as frambuffer && window parameter, but using only one is undef bev
 - An OGL context seems to be the running process more or less
 
 ###### IDEAS:
-- For shader file reading:
-
-    malloc(something for files when found)
-    search_shaders(void)
-    {
-        current_dir
-        if(no vs/fs shaders, go deeper)
-        if(vs/fs shaders pass path to compile_shader(path))
-        remember to check if total file size if bigger than malloc-ed space
-        and if yes alloc more
-
-        search_shaders();
-    }
-    free()
-    compile_shader(path)
-    {
-        the usuale compile -> log -> out 
-    }
-
-    why malloc? well easy, the compiler functions need the souce code strings
-    and to give it to them i have to read them inside a buffer
-    and that buffer will be x bytes big
 
 - For mesh value reading:
 
