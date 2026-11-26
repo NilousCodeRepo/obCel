@@ -4,6 +4,7 @@
 
 u32 vertex_compile(const char*);
 u32 fragment_compile(const char*);
+u32 choose_f_type(const char*);
 u32 shader_compile(char**);
 
 char** buff_accumulate(const char*);
@@ -17,6 +18,143 @@ void vertex_data(void);
 
 static u16 TEXT_SIZE = 0;
 static i8 COUNT = 0;
+
+u32 shader_compile(char** buff)
+{
+    u32 prog_ID = glCreateProgram();
+    u32 shaders[COUNT];
+
+    for(i8 i = 0; i < COUNT; ++i)
+    {
+        shaders[i] = choose_f_type(buff[i]);
+        glAttachShader(prog_ID, shaders[i]);
+    }
+    glLinkProgram(prog_ID);
+
+    i32 success; char info_log[LOG_SIZE] = {0};
+    glGetProgramiv(prog_ID, GL_LINK_STATUS, &success);
+    if(success == GL_FALSE) 
+    {
+        glGetProgramInfoLog(prog_ID, sizeof(info_log), NULL, info_log);
+        printf(BASH_RED("ERROR")": Could NOT LINK shader [INFO LOG]:%s\n", info_log);
+    }
+    else
+    {
+        printf(BASH_GREEN("SUCCESS")": LINKING phase completed:%s\n", info_log);
+    }
+
+
+    for(u8 i = 0; i < COUNT; i++) glDeleteShader(shaders[i]);
+
+    return(prog_ID);
+}
+
+u32 choose_f_type(const char* buff)
+{
+    u32 id = 0;
+    char type[5] = {0};//needed 5 to avoid stupid *** stack smasking detected **
+    for(u8 i = 0; i < 4; ++i) type[i] = buff[i];
+    printf("TYPE: %s\n", type);
+    if(strcmp(type, "//VS") == 0) id = vertex_compile(buff);
+
+    if(strcmp(type, "//FS") == 0) id = fragment_compile(buff); 
+    return(id);
+}
+
+u32 vertex_compile(const char* vertex_file)
+{
+    u32 vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader, 1, &vertex_file, NULL);
+    glCompileShader(vertex_shader);
+    
+    i32 success; char info_log[LOG_SIZE] = {0};
+    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
+    if(success == GL_FALSE) 
+    {
+        glGetShaderInfoLog(vertex_shader, LOG_SIZE, NULL, info_log);
+        printf(BASH_RED("ERROR")": Could NOT COMPILE vertex shader [INFO LOG]:%s\n", info_log);
+    }
+    else
+    {
+        printf(BASH_GREEN("SUCCESS")": VERTEX shader compiled:%s\n", info_log);
+    }
+
+    return(vertex_shader);
+}
+
+u32 fragment_compile(const char* fragment_file)
+{
+    u32 fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader, 1, &fragment_file, NULL);
+    glCompileShader(fragment_shader);
+
+    i32 success; char info_log[LOG_SIZE] = {0};
+    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
+    if(success == GL_FALSE) 
+    {
+        glGetShaderInfoLog(fragment_shader, LOG_SIZE, NULL, info_log);
+        printf(BASH_RED("ERROR")": Could NOT COMPILE fragment shader [INFO LOG]:%s\n", info_log);
+    }
+    else
+    {
+        printf(BASH_GREEN("SUCCESS")": FRAGMENT shader compiled:%s\n", info_log);
+    }
+
+    return(fragment_shader);
+}
+
+void vertex_data(void)
+{
+    const f32 VERTX_DATA[] = {
+        // positions        
+        0.5f, -0.5f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f, // bottom left
+        0.0f,  0.5f, 0.0f,  // top 
+    };
+
+    u32 VBO, VAO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
+    glBindVertexArray(VAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(VERTX_DATA), VERTX_DATA, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)0);
+    glEnableVertexAttribArray(0);
+    // color attribute
+    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)(3 * sizeof(f32)));
+    //glEnableVertexAttribArray(1);
+}
+
+const char *get_filename_ext(const char *filename) {
+    const char *dot = strrchr(filename, '.');
+    if(!dot || dot == filename) return "";
+    return dot + 1;
+}
+
+char* file_reader(char* file)
+{
+    FILE* f = fopen(file, "r");
+    if(f == NULL) printf(BASH_RED("ERROR")": Could NOT OPEN shader file at \n");
+
+    //check how many bytes is the file, by moving a "cursor"(file position indicator) then
+    //reset the "cursor" position in the file
+    fseek(f, 0, SEEK_END); 
+    TEXT_SIZE = ftell(f); 
+    fseek(f, 0, SEEK_SET);
+
+    char* buffer = (char*) malloc(TEXT_SIZE + 1);
+    if(buffer == NULL)printf(BASH_RED("ERROR")": ALLOCATION of buffer for shader compilation failed\n");
+    // read into buffer one item the size of the file from the file
+    fread(buffer, 1 , TEXT_SIZE, f);
+    buffer[TEXT_SIZE] = '\0';
+    fclose(f);
+    
+    return(buffer);
+}
 
 char** buff_accumulate(const char* path)
 {
@@ -52,180 +190,19 @@ char** buff_accumulate(const char* path)
 
             if(strcmp(ext, "fs") == 0)
             {
-                if(COUNT == -1) COUNT++;
                 buff[COUNT] = file_reader(p);
                 COUNT++;
             }
             if(strcmp(ext, "vs") == 0)
             {
-                if(COUNT == -1) COUNT++;
                 buff[COUNT] = file_reader(p);
                 COUNT++;
             }
-        }//COUNT REACHES 2 PORCO DIO
+        }
         // COMPUTA... COMPUTA MAKE THE SHADERS...COMPUTA!!
         // bugs = no; shaders = yes; efficiency = max(); 
     }
 
     closedir(dir);
     return(buff);
-}
-
-u32 shader_compile(char** buff)
-{
-    /*TODO(nilou):
-          1. mandarli allo step di compilazione giusto:
-          immagina:
-          u32 vertex_program = choose_f_type(VERTEX, buff[x]);
-          choose_f_type(union Type t)
-          {
-          switch(t)
-          {
-          case VERTEX: vertex_compile(x)
-          break;
-          .
-          .
-          .
-          default:
-          }
-          }
-          come prendere il buff giusto?
-          faccio un loop su buff? e.g.:
-          while(buff != NULL)
-          {
-          /uparrow
-          buff+1;
-          }
-          non credo sia giustissimo
-     */
-
-
-    u32 prog_ID = 0;
-    
-#if 0
-    u32 vertex_program = 0;
-    u32 fragment_program = 0;
-
-    while(buff != NULL)
-    {
-        program = choose_f_type(VERTEX, buff);
-        buff = buff + 1;
-        program = choose_f_type(FRAGMENT, buff);
-        buff = buff + 1;
-
-        prog_ID = glCreateProgram();
-
-        //GlAttachShader(prog_ID, vertex_program);
-        //GlAttachShader(prog_ID, fragment_program);
-        GlAttachShader(prog_ID, program);
-
-        glLinkProgram(prog_ID);
-
-        i32 success; char info_log[LOG_SIZE] = {0};
-        glGetProgramiv(prog_ID, GL_LINK_STATUS, &success);
-        if(success == GL_FALSE) 
-        {
-            glGetProgramInfoLog(prog_ID, sizeof(info_log), NULL, info_log);
-            printf(BASH_RED("ERROR")": Could NOT LINK shader [INFO LOG]:%s\n", info_log);
-        }
-        printf(BASH_GREEN("SUCCESS")": LIKING phase completed:%s\n", info_log);
-
-        vertex_data();
-
-        //glDeleteShader(vertex_program);
-        //glDeleteShader(fragment_program);
-        glDeleteShader(program);
-    }
-
-#endif
-    return(prog_ID);
-}
-
-u32 vertex_compile(const char* vertex_file)
-{
-    u32 vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertex_shader, 1, &vertex_file, NULL);
-    glCompileShader(vertex_shader);
-    
-    i32 success; char info_log[LOG_SIZE] = {0};
-    glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &success);
-    if(success == GL_FALSE) 
-    {
-        glGetShaderInfoLog(vertex_shader, LOG_SIZE, NULL, info_log);
-        printf(BASH_RED("ERROR")": Could NOT COMPILE vertex shader [INFO LOG]:%s\n", info_log);
-    }
-
-    printf(BASH_GREEN("SUCCESS")": VERTEX shader compiled:%s\n", info_log);
-    return(vertex_shader);
-}
-
-u32 fragment_compile(const char* fragment_file)
-{
-    u32 fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragment_shader, 1, &fragment_file, NULL);
-    glCompileShader(fragment_shader);
-
-    i32 success; char info_log[LOG_SIZE] = {0};
-    glGetShaderiv(fragment_shader, GL_COMPILE_STATUS, &success);
-    if(success == GL_FALSE) 
-    {
-        glGetShaderInfoLog(fragment_shader, LOG_SIZE, NULL, info_log);
-        printf(BASH_RED("ERROR")": Could NOT COMPILE fragment shader [INFO LOG]:%s\n", info_log);
-    }
-
-    printf(BASH_GREEN("SUCCESS")": FRAGMENT shader compiled:%s\n", info_log);
-    return(fragment_shader);
-}
-
-void vertex_data(void)
-{
-    const f32 VERTX_DATA[] = {
-        // positions        
-        0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f, // bottom left
-        0.0f,  0.5f, 0.0f,  // top 
-    };
-
-    u32 VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VERTX_DATA), VERTX_DATA, GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)0);
-    glEnableVertexAttribArray(0);
-    // color attribute
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(f32), (void*)(3 * sizeof(f32)));
-    glEnableVertexAttribArray(1);
-}
-
-const char *get_filename_ext(const char *filename) {
-    const char *dot = strrchr(filename, '.');
-    if(!dot || dot == filename) return "";
-    return dot + 1;
-}
-
-char* file_reader(char* file)
-{
-    FILE* f = fopen(file, "r");
-    if(f == NULL) printf(BASH_RED("ERROR")": Could NOT OPEN shader file at \n");
-
-    //check how many bytes is the file, by moving a "cursor"(file position indicator) then
-    //reset the "cursor" position in the file
-    fseek(f, 0, SEEK_END); 
-    TEXT_SIZE = ftell(f); 
-    fseek(f, 0, SEEK_SET);
-
-    char* buffer = (char*) malloc(TEXT_SIZE);
-    if(buffer == NULL)printf(BASH_RED("ERROR")": ALLOCATION of buffer for shader compilation failed\n");
-    
-    fread(buffer, TEXT_SIZE, sizeof(char), f);
-    buffer[TEXT_SIZE] = '\0';
-    fclose(f);
-    
-    return(buffer);
 }

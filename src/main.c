@@ -20,6 +20,7 @@ int main(void)
         if(glfwGetKey(window, GLFW_KEY_ESCAPE)) glfwSetWindowShouldClose(window, true);
         set_background(r,g,b,alpha);
 
+        vertex_data();
         glUseProgram(program);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
