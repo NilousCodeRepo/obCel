@@ -16,6 +16,7 @@ void vertex_data(void);
 #define BUFF_SIZE 1024*4
 
 static u16 TEXT_SIZE = 0;
+static i8 COUNT = 0;
 
 char** buff_accumulate(const char* path)
 {
@@ -31,12 +32,10 @@ char** buff_accumulate(const char* path)
 
     char p[BUFF_SIZE];
     char ext[8];
-    u8 count = 0;
 
     //TODO(nilou): the loop kind of works, but in the man of dirent is a "maybe" the fact that it
     //             can read the subsequen file(that after fs for example) try to use a simpler method 
     //             this loop is making me mad...
-    //TODO(nilou): make it non recursive
     while((entry = readdir(dir)) != NULL)
     {
         //serve a saltare l'attuale cartella, sennò ricorsione infinita ed errore
@@ -47,32 +46,33 @@ char** buff_accumulate(const char* path)
         snprintf(p, sizeof(p), "%s/%s", path, entry->d_name);
         
         //TODO(nilou): use debugger here
-        if(entry->d_type == DT_DIR) buff_accumulate(p);
-
-        snprintf(ext, sizeof(ext), "%s", get_filename_ext(entry->d_name));
-
-        if(strcmp(ext, "fs") == 0)
+        //if(entry->d_type == DT_DIR)
         {
-            buff[count] = file_reader(p);
-        }
-        if(strcmp(ext, "vs") == 0)
-        {
-            buff[count] = file_reader(p);
-        }
+            snprintf(ext, sizeof(ext), "%s", get_filename_ext(entry->d_name));
 
-        count++;//needed if files > 2
+            if(strcmp(ext, "fs") == 0)
+            {
+                if(COUNT == -1) COUNT++;
+                buff[COUNT] = file_reader(p);
+                COUNT++;
+            }
+            if(strcmp(ext, "vs") == 0)
+            {
+                if(COUNT == -1) COUNT++;
+                buff[COUNT] = file_reader(p);
+                COUNT++;
+            }
+        }//COUNT REACHES 2 PORCO DIO
+        // COMPUTA... COMPUTA MAKE THE SHADERS...COMPUTA!!
+        // bugs = no; shaders = yes; efficiency = max(); 
     }
-    
-    printf("THIS IS BUF -> 0: %s\n",buff[0]);
 
-    printf("BUFFER -> 0 CONTENTS: %s\n", buff[0]); 
     closedir(dir);
     return(buff);
 }
 
-u32 shader_compile(char**)
+u32 shader_compile(char** buff)
 {
-
     /*TODO(nilou):
           1. mandarli allo step di compilazione giusto:
           immagina:

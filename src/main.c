@@ -12,7 +12,7 @@ int main(void)
     GLFWwindow* window = create_window(WIDTH, HEIGHT, "obCel");
     i8 r = 16; i8 g = 71; i8 b = 83; f32 alpha = 1.0f;
 
-    char** buff = buff_accumulate("/home/nilou/Code/PROJECTS/obcel/src/");
+    char** buff = buff_accumulate("/home/nilou/Code/PROJECTS/obcel/src/first_layer/shaders/triangle/");
     u32 program = shader_compile(buff);
 
     while(!glfwWindowShouldClose(window)) 
