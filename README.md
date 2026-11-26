@@ -1,5 +1,5 @@
 ###### TODO:
-- [ ] Remake makefile so that it's simpler and does not -Iglfw for everything, becauser -I looks up the dirs so it slows down compilation
+- [x] Remake makefile so that it's simpler and does not -Iglfw for everything, becauser -I looks up the dirs so it slows down compilation
 - [ ] Debug ts 
 - [ ] Create procedure to read mesh.h file and automatically instance or add to VBO and create VAO and EBO
 - [ ] same as above for shaders 
