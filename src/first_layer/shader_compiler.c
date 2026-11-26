@@ -4,7 +4,9 @@
 
 u32 vertex_compile(const char*);
 u32 fragment_compile(const char*);
-u32 shader_compile(const char*);
+u32 shader_compile(char**);
+
+char** buff_accumulate(const char*);
 
 const char *get_filename_ext(const char*);
 char* file_reader(char*);
@@ -15,7 +17,7 @@ void vertex_data(void);
 
 static u16 TEXT_SIZE = 0;
 
-u32 shader_compile(const char* path)
+char** buff_accumulate(const char* path)
 {
     DIR* dir;
     struct dirent* entry;
@@ -24,7 +26,7 @@ u32 shader_compile(const char* path)
     if((dir = opendir(path)) == NULL)
     {
         printf(BASH_RED("ERROR")": Could not open folder\n");
-        return(1);
+        //return(1);
     }
 
     char p[BUFF_SIZE];
@@ -34,6 +36,7 @@ u32 shader_compile(const char* path)
     //TODO(nilou): the loop kind of works, but in the man of dirent is a "maybe" the fact that it
     //             can read the subsequen file(that after fs for example) try to use a simpler method 
     //             this loop is making me mad...
+    //TODO(nilou): make it non recursive
     while((entry = readdir(dir)) != NULL)
     {
         //serve a saltare l'attuale cartella, sennò ricorsione infinita ed errore
@@ -42,62 +45,63 @@ u32 shader_compile(const char* path)
 
         //sto creando la stringa che equivale al path
         snprintf(p, sizeof(p), "%s/%s", path, entry->d_name);
-        printf("PATH: %s\n", path);
         
         //TODO(nilou): use debugger here
-        if(entry->d_type == DT_DIR) shader_compile(p);
+        if(entry->d_type == DT_DIR) buff_accumulate(p);
 
         snprintf(ext, sizeof(ext), "%s", get_filename_ext(entry->d_name));
-        printf("EXT: %s\n", ext);
 
         if(strcmp(ext, "fs") == 0)
         {
             buff[count] = file_reader(p);
-            printf("FRAGMENT SHADER: %s\nBUFF LOCATED AT: %p\nSTRING LOCATED AT: %p\n", buff[count], &buff[count], &buff[count][0]);
         }
         if(strcmp(ext, "vs") == 0)
         {
             buff[count] = file_reader(p);
-            printf("VERTEX SHADER: %s\nBUFF LOCATED AT: %p\nSTRING LOCATED AT: %p\n", buff[count], &buff[count], &buff[count][0]);
         }
 
         count++;//needed if files > 2
     }
+    
+    printf("THIS IS BUF -> 0: %s\n",buff[0]);
 
+    printf("BUFFER -> 0 CONTENTS: %s\n", buff[0]); 
     closedir(dir);
-/*TODO(nilou):
-        1. mandarli allo step di compilazione giusto:
-            immagina:
-            u32 vertex_program = choose_f_type(VERTEX, buff[x]);
-            choose_f_type(union Type t)
-            {
-                switch(t)
-                {
-                    case VERTEX: vertex_compile(x)
-                    break;
-                    .
-                    .
-                    .
-                    default:
-                }
-            }
-        come prendere il buff giusto?
-        faccio un loop su buff? e.g.:
-        while(buff != NULL)
-        {
-            /uparrow
-            buff+1;
-        }
-        non credo sia giustissimo
+    return(buff);
+}
 
-        2. Come faccio a creare più vertex programs?
-            mi serve un array? no
-            ci pensa OpenGL? si, devo solo fare:
-                AttachShader(vertex/fragment program)
-            perchè è sequenziale sia compilare che linkare quindi posso farlo
-*/
+u32 shader_compile(char**)
+{
+
+    /*TODO(nilou):
+          1. mandarli allo step di compilazione giusto:
+          immagina:
+          u32 vertex_program = choose_f_type(VERTEX, buff[x]);
+          choose_f_type(union Type t)
+          {
+          switch(t)
+          {
+          case VERTEX: vertex_compile(x)
+          break;
+          .
+          .
+          .
+          default:
+          }
+          }
+          come prendere il buff giusto?
+          faccio un loop su buff? e.g.:
+          while(buff != NULL)
+          {
+          /uparrow
+          buff+1;
+          }
+          non credo sia giustissimo
+     */
+
 
     u32 prog_ID = 0;
+    
 #if 0
     u32 vertex_program = 0;
     u32 fragment_program = 0;
@@ -114,7 +118,7 @@ u32 shader_compile(const char* path)
         //GlAttachShader(prog_ID, vertex_program);
         //GlAttachShader(prog_ID, fragment_program);
         GlAttachShader(prog_ID, program);
-        
+
         glLinkProgram(prog_ID);
 
         i32 success; char info_log[LOG_SIZE] = {0};
@@ -134,8 +138,6 @@ u32 shader_compile(const char* path)
     }
 
 #endif
-    free(buff);
-    buff=NULL;
     return(prog_ID);
 }
 
@@ -212,17 +214,17 @@ char* file_reader(char* file)
     FILE* f = fopen(file, "r");
     if(f == NULL) printf(BASH_RED("ERROR")": Could NOT OPEN shader file at \n");
 
-//check how many bytes is the file, by moving a "cursor"(file position indicator) then
-//reset the "cursor" position in the file
+    //check how many bytes is the file, by moving a "cursor"(file position indicator) then
+    //reset the "cursor" position in the file
     fseek(f, 0, SEEK_END); 
     TEXT_SIZE = ftell(f); 
     fseek(f, 0, SEEK_SET);
 
-    char* buffer = (char*) malloc(TEXT_SIZE + 1);
+    char* buffer = (char*) malloc(TEXT_SIZE);
     if(buffer == NULL)printf(BASH_RED("ERROR")": ALLOCATION of buffer for shader compilation failed\n");
     
     fread(buffer, TEXT_SIZE, sizeof(char), f);
-    buffer[TEXT_SIZE+1] = '\0';
+    buffer[TEXT_SIZE] = '\0';
     fclose(f);
     
     return(buffer);

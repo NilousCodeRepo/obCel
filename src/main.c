@@ -12,7 +12,8 @@ int main(void)
     GLFWwindow* window = create_window(WIDTH, HEIGHT, "obCel");
     i8 r = 16; i8 g = 71; i8 b = 83; f32 alpha = 1.0f;
 
-    u32 program = shader_compile("/home/nilou/Code/PROJECTS/obcel/src/");
+    char** buff = buff_accumulate("/home/nilou/Code/PROJECTS/obcel/src/");
+    u32 program = shader_compile(buff);
 
     while(!glfwWindowShouldClose(window)) 
     {
