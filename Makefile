@@ -5,7 +5,7 @@ GLFW_DIR = $(RES_DIR)/glfw-3.4
 
 CC = gcc
 
-CFLAGS = -std=c23 -Wall -Wextra
+CFLAGS = -std=c23 -Wall -Wextra -ggdb
 CFLAGS += -I$(RES_DIR)
 
 LDFLAGS = -L$(GLFW_DIR)/build/src/

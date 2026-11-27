@@ -1,5 +1,4 @@
 ###### TODO:
-- [x] Debug ts 
 - [ ] Create procedure to read mesh.h file and automatically instance or add to VBO and create VAO and EBO
 - [ ] same as above for shaders 
 - [ ] implement cleanup of resources
