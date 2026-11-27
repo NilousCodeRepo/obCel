@@ -15,9 +15,9 @@ char* file_reader(char*);
 void vertex_data(void);
 
 #define BUFF_SIZE 1024*4
+#define SHADER_COUNT 256
 
 //provvisory count
-#define SHADER_COUNT 256
 
 static u16 TEXT_SIZE = 0;
 static i8 COUNT = 0;
@@ -25,7 +25,11 @@ static i8 COUNT = 0;
 u32 shader_compile(char** buff)
 {
     u32 prog_ID = glCreateProgram();
-    u32* shaders = (u32*)malloc(SHADER_COUNT);
+
+    //here count is as big as the number of shaders
+    //isn't a bug since i am increasing the number of possible elements in an array at runtime?
+    //it's a Variable Lenght Array, works since C99, but i don't like it
+    u32 shaders[SHADER_COUNT];
 
     for(i8 i = 0; i < COUNT; ++i)
     {
@@ -48,10 +52,6 @@ u32 shader_compile(char** buff)
 
     //free the object associated with the ID that is that specific shader's ID
     for(u8 i = 0; i < COUNT; i++) glDeleteShader(shaders[i]);
-
-    //free the buffer
-    free(shaders);
-    shaders=NULL;
 
     return(prog_ID);
 }
