@@ -16,13 +16,16 @@ void vertex_data(void);
 
 #define BUFF_SIZE 1024*4
 
+//provvisory count
+#define SHADER_COUNT 256
+
 static u16 TEXT_SIZE = 0;
 static i8 COUNT = 0;
 
 u32 shader_compile(char** buff)
 {
     u32 prog_ID = glCreateProgram();
-    u32 shaders[COUNT];
+    u32* shaders = (u32*)malloc(SHADER_COUNT);
 
     for(i8 i = 0; i < COUNT; ++i)
     {
@@ -43,8 +46,12 @@ u32 shader_compile(char** buff)
         printf(BASH_GREEN("SUCCESS")": LINKING phase completed:%s\n", info_log);
     }
 
-
+    //free the object associated with the ID that is that specific shader's ID
     for(u8 i = 0; i < COUNT; i++) glDeleteShader(shaders[i]);
+
+    //free the buffer
+    free(shaders);
+    shaders=NULL;
 
     return(prog_ID);
 }
@@ -54,7 +61,7 @@ u32 choose_f_type(const char* buff)
     u32 id = 0;
     char type[5] = {0};//needed 5 to avoid stupid *** stack smasking detected **
     for(u8 i = 0; i < 4; ++i) type[i] = buff[i];
-    printf("TYPE: %s\n", type);
+
     if(strcmp(type, "//VS") == 0) id = vertex_compile(buff);
 
     if(strcmp(type, "//FS") == 0) id = fragment_compile(buff); 
